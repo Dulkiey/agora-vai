@@ -11,10 +11,21 @@
 
         body {
             font-family: 'Outfit', sans-serif;
-            background: radial-gradient(circle, #3d051e 0%, #1a0510 100%);
+            background: #1a0510; /* Cor de fundo base */
             color: #fff; height: 100vh; overflow: hidden;
             display: flex; align-items: center; justify-content: center;
             transition: 0.5s;
+            perspective: 1000px;
+        }
+
+        /* CAMADA PARALLAX */
+        #parallax-bg {
+            position: fixed;
+            inset: -10%; /* Margem maior para não cortar o fundo no movimento */
+            background: radial-gradient(circle, #3d051e 0%, #1a0510 100%);
+            z-index: -1;
+            transition: transform 0.2s ease-out;
+            pointer-events: none;
         }
 
         #progress-bar {
@@ -47,7 +58,11 @@
         .vibe-ativa #speed-lines { opacity: 1; animation: moveLines 0.2s linear infinite; }
         @keyframes moveLines { from { background-position: 100% 0; } to { background-position: 0% 0; } }
 
-        .particle { position: absolute; border-radius: 50%; background: #fff; opacity: 0.2; animation: flutuar var(--d) infinite ease-in-out; pointer-events: none; z-index: 2; }
+        #particles-container { 
+            position: fixed; inset: 0; pointer-events: none; z-index: 2; 
+            transition: transform 0.15s ease-out; /* Movimento parallax das partículas */
+        }
+        .particle { position: absolute; border-radius: 50%; background: #fff; opacity: 0.2; animation: flutuar var(--d) infinite ease-in-out; }
         @keyframes flutuar { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-30px); } }
 
         .card {
@@ -144,6 +159,7 @@
 </head>
 <body id="corpo">
 
+    <div id="parallax-bg"></div>
     <div id="progress-bar"></div>
     <div id="speed-lines"></div>
     <div id="particles-container"></div>
@@ -200,6 +216,25 @@
             7: `Eu nunca tinha feito nada parecido, mas por você eu quis aprender. Todo o esforço e os dias que passei aprendendo a criar este site valeram a pena. Esse é o meu presente 'feito à mão', e espero que você sinta, em cada detalhe, o carinho enorme que coloquei aqui.`,
             8: `E, por fim, eu agradeço muito por você me aturar todos os dias. Eu fiz isso mais como uma forma de agradecimento por você ser como é: uma pessoa amiga, parceira e um amor de pessoa. Eu espero que eu possa estar nos próximos aniversários contigo. E se você não gostou, **dorme que passa!** Mais uma vez, feliz aniversário e que você conquiste tudo de bom na sua vida. Sempre irei torcer por você. **Te amo! <3**`
         };
+
+        // SCRIPT DO EFEITO PARALLAX
+        document.addEventListener('mousemove', (e) => {
+            const bg = document.getElementById('parallax-bg');
+            const particles = document.getElementById('particles-container');
+            
+            const moveX = (e.clientX - window.innerWidth / 2) / 25;
+            const moveY = (e.clientY - window.innerHeight / 2) / 25;
+
+            bg.style.transform = `translate(${moveX}px, ${moveY}px)`;
+            particles.style.transform = `translate(${moveX * 1.4}px, ${moveY * 1.4}px)`;
+        });
+
+        window.addEventListener('deviceorientation', (e) => {
+            const bg = document.getElementById('parallax-bg');
+            const moveX = e.gamma / 1.5;
+            const moveY = e.beta / 1.5;
+            bg.style.transform = `translate(${moveX}px, ${moveY}px)`;
+        });
 
         function playClick() {
             const click = document.getElementById('som-click');
